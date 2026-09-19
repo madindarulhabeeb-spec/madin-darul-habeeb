@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Al-Madinah Academic Complex | Inspired by Ma'din Academy</title>
+  <meta name="description" content="A premier educational sanctuary empowering students through contemporary academics and value-based learning.">
+  
+  <!-- Fonts: Cinzel for Academic Prestige Serifs & Inter for Clean Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="campus-body">
+
+  <!-- ==========================================================================
+       1. Top Announcement & Host Bar
+       ========================================================================== -->
+  <div class="top-bar">
+    <div class="top-bar-inner container">
+      <div class="top-notice-box">
+        <span class="notice-label">Notice</span>
+        <div class="notice-scroller" id="top-notice-text">
+          📢 Admissions Open for Academic Year 2026-27 | Merit Scholarship Exam on Oct 12
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="header-phone-display" style="display:inline-flex; align-items:center; gap:4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          <span id="top-phone">+91 483 2738343</span>
+        </span>
+        <!-- Host Link with Editing Option -->
+        <a href="admin.html" class="host-link-btn" title="Open Host / Admin Portal to edit all content">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          Host Portal (Edit Mode)
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       2. Navigation Bar
+       ========================================================================== -->
+  <header class="main-header">
+    <div class="container nav-container">
+      <!-- Logo & Campus Identity -->
+      <a href="#home" class="brand-logo">
+        <div class="brand-crest">
+          <!-- Institutional Emblem SVG -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <path d="M12 6l-2 3 2 3"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title" id="nav-brand-name">Al-Madinah Academic Complex</span>
+          <span class="brand-tagline" id="nav-brand-tagline">Illuminating Minds • Inspiring Character</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Menu -->
+      <nav class="nav-menu" id="nav-menu">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#about" class="nav-link">About Us</a>
+        <a href="#institutions" class="nav-link">Institutions</a>
+        <a href="#campus-life" class="nav-link">Campus Life</a>
+        <a href="#news-events" class="nav-link">News & Events</a>
+        <a href="#contact" class="nav-link">Contact Us</a>
+      </nav>
+
+      <!-- Nav Action Button: Apply Now -->
+      <div class="nav-cta-wrap">
+        <button class="btn btn-gold" id="btn-apply-nav" onclick="openApplyModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+          Apply Now
+        </button>
+        <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==========================================================================
+         3. Homepage Section 1: Hero Banner
+         ========================================================================== -->
+    <section class="hero-section" id="home">
+      <div class="hero-backdrop" id="hero-bg"></div>
+      <div class="hero-overlay-gradient"></div>
+      
+      <div class="container hero-content">
+        <div class="hero-badge" id="hero-badge-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+          <span id="hero-badge-text">27+ Years of Academic Eminence</span>
+        </div>
+        
+        <h1 class="hero-title" id="hero-headline">
+          Transforming Society Through Contemporary & Value-Based Education
+        </h1>
+        
+        <p class="hero-subtitle" id="hero-subtext">
+          A world-class academic sanctuary nurturing over 15,000 students across 28+ institutions, uniting spiritual heritage with modern scientific mastery.
+        </p>
+        
+        <div class="hero-cta-group">
+          <a href="#institutions" class="btn btn-gold" id="hero-cta-primary">
+            Explore Institutions
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+          <button class="btn btn-outline-white" onclick="openApplyModal()" id="hero-cta-secondary">
+            Admissions 2026-27
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         3. Homepage Section 2: Quick Stats Bar
+         ========================================================================== -->
+    <div class="container stats-container">
+      <div class="stats-card-grid" id="stats-grid">
+        <!-- Rendered dynamically from Data Store -->
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         3. Homepage Section 3: Founder / Principal Message
+         ========================================================================== -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Leadership & Vision</span>
+          <h2 class="section-title">Guiding Lights of Our Academic Sanctuary</h2>
+          <p class="section-subtitle">Dedicated leadership steering our community towards moral rectitude, intellectual vigor, and universal empathy.</p>
+        </div>
+
+        <div class="leadership-wrapper">
+          <div class="leader-portrait-frame">
+            <div class="leader-photo-border">
+              <img id="leader-img" class="leader-photo" src="" alt="Founder and Chairman">
+            </div>
+          </div>
+          
+          <div class="leader-content">
+            <div class="leader-quote-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+            </div>
+            
+            <p class="leader-quote-text" id="leader-quote-text">
+              "True education transcends the acquisition of degrees; it is the sacred endeavor of molding selfless human beings equipped with visionary intellect and unwavering integrity."
+            </p>
+            
+            <div class="leader-bio">
+              <div>
+                <h3 class="leader-name" id="leader-name">Prof. Dr. Sayyid Ibrahim Khaleel Al-Bukhari</h3>
+                <p class="leader-title" id="leader-title">Founder & Chairman</p>
+              </div>
+              <div class="leader-signature" id="leader-signature">
+                Sayyid Ibrahim Khaleel
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         3. Homepage Section 4: Institutions & Departments Grid
+         ========================================================================== -->
+    <section class="section section-bg-alt" id="institutions">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Academic Centers</span>
+          <h2 class="section-title">Our Premier Institutions & Departments</h2>
+          <p class="section-subtitle">A comprehensive academic continuum ranging from elementary schooling to specialized higher education, technical disciplines, and doctoral research.</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs" id="inst-filter-tabs">
+          <button class="tab-btn active" data-category="all">All Disciplines</button>
+          <button class="tab-btn" data-category="higher-ed">Higher Education</button>
+          <button class="tab-btn" data-category="islamic-studies">Islamic & Contemporary</button>
+          <button class="tab-btn" data-category="technical">Engineering & Tech</button>
+          <button class="tab-btn" data-category="schools">Residential Schooling</button>
+          <button class="tab-btn" data-category="special-ed">Special & Inclusive</button>
+        </div>
+
+        <!-- Institutions Grid -->
+        <div class="institutions-grid" id="institutions-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         3. Homepage Section 5: Campus Life & Features
+         ========================================================================== -->
+    <section class="section" id="campus-life">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Student Life</span>
+          <h2 class="section-title">Holistic Campus Life & World-Class Facilities</h2>
+          <p class="section-subtitle">Modern residential amenities, vibrant cultural avenues, and state-of-the-art research hubs engineered to foster total student flourishing.</p>
+        </div>
+
+        <div class="features-grid" id="campus-life-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         3. Homepage Section 6: Latest News & Upcoming Events (Side-by-Side)
+         ========================================================================== -->
+    <section class="section section-bg-alt" id="news-events">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Campus Bulletin</span>
+          <h2 class="section-title">Latest News & Upcoming Events</h2>
+          <p class="section-subtitle">Stay informed with real-time circulars, academic breakthroughs, and prestigious symposiums taking place across our campus.</p>
+        </div>
+
+        <div class="news-events-split">
+          <!-- Left Column: Recent News -->
+          <div class="news-column">
+            <div class="column-header">
+              <h3 class="column-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                Campus Announcements
+              </h3>
+              <a href="#news-events" class="view-all-link">Recent Updates &rarr;</a>
+            </div>
+            
+            <div class="news-list" id="news-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Right Column: Upcoming Events Calendar -->
+          <div class="events-column">
+            <div class="column-header">
+              <h3 class="column-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Upcoming Events Calendar
+              </h3>
+              <a href="#news-events" class="view-all-link">Full Schedule &rarr;</a>
+            </div>
+            
+            <div class="events-list" id="events-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         Admissions Callout Strip
+         ========================================================================== -->
+    <section class="admissions-strip" id="admissions">
+      <div class="container admissions-inner">
+        <div class="admissions-text-block">
+          <h2>Shape Your Legacy With Us</h2>
+          <p>Admissions are now open for the 2026-27 academic session. Scholarships available for meritorious learners across all undergraduate and research streams.</p>
+        </div>
+        <div class="admissions-actions">
+          <button class="btn btn-gold" onclick="openApplyModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Apply Online Now
+          </button>
+          <a href="#contact" class="btn btn-outline-white">Inquire Details</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==========================================================================
+       3. Homepage Section 7: Simple & Comprehensive Footer
+       ========================================================================== -->
+  <footer class="main-footer" id="contact">
+    <div class="container footer-grid">
+      <!-- Col 1: Campus Identity -->
+      <div class="footer-col">
+        <h4 class="footer-col-title" id="footer-brand-name">Al-Madinah Academic Complex</h4>
+        <p class="footer-brand-desc" id="footer-tagline">
+          An internationally acclaimed educational network cultivating intellectual brilliance, research rigor, and ethical consciousness since 1997.
+        </p>
+        <div class="footer-social-links" id="footer-socials">
+          <a href="#" class="social-icon-btn" aria-label="Facebook"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+          <a href="#" class="social-icon-btn" aria-label="Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+          <a href="#" class="social-icon-btn" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+          <a href="#" class="social-icon-btn" aria-label="YouTube"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg></a>
+        </div>
+      </div>
+
+      <!-- Col 2: Quick Links -->
+      <div class="footer-col">
+        <h4 class="footer-col-title">Quick Navigation</h4>
+        <ul class="footer-links-list">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About Leadership</a></li>
+          <li><a href="#institutions">Colleges & Schools</a></li>
+          <li><a href="#campus-life">Hostels & Libraries</a></li>
+          <li><a href="#news-events">Events Calendar</a></li>
+          <li><a href="#admissions">Admissions Portal</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Academic Wings -->
+      <div class="footer-col">
+        <h4 class="footer-col-title">Academic Wings</h4>
+        <ul class="footer-links-list">
+          <li><a href="#institutions">Arts & Science College</a></li>
+          <li><a href="#institutions">Integrated Islamic Studies</a></li>
+          <li><a href="#institutions">Polytechnic Engineering</a></li>
+          <li><a href="#institutions">Residential Higher Secondary</a></li>
+          <li><a href="#institutions">Special Needs Education</a></li>
+          <li><a href="#institutions">Center for AI & Data</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Contact Information -->
+      <div class="footer-col">
+        <h4 class="footer-col-title">Campus Information</h4>
+        <div class="contact-info-list">
+          <div class="contact-info-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span id="footer-address">Knowledge City, Swagathamad, Malappuram, Kerala - 676519</span>
+          </div>
+          <div class="contact-info-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span id="footer-phone">+91 483 2738343, +91 9447 123456</span>
+          </div>
+          <div class="contact-info-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span id="footer-email">admissions@madinacampus.edu.in</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="container footer-bottom">
+      <div id="footer-copyright">
+        &copy; 2026 Al-Madinah Academic Complex. Inspired by Ma'din Academy. All rights reserved.
+      </div>
+      <div>
+        <!-- Host Portal Link with icon -->
+        <a href="admin.html" class="footer-host-access">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          Host Management Portal
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       Admissions Application Modal
+       ========================================================================== -->
+  <div class="modal-backdrop" id="apply-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Campus Admission Application</h3>
+        <button class="modal-close-btn" onclick="closeApplyModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="admission-form" onsubmit="handleAdmissionSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">Applicant Full Name *</label>
+            <input type="text" class="form-control" name="applicantName" placeholder="e.g. Amina Rashid" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input type="email" class="form-control" name="email" placeholder="name@example.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Phone / WhatsApp *</label>
+            <input type="tel" class="form-control" name="phone" placeholder="+91 9876543210" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Program / Department of Interest *</label>
+            <select class="form-control" name="course" id="modal-course-select" required>
+              <option value="">Select an institution / course</option>
+              <option value="B.Sc Computer Science (College of Arts & Science)">B.Sc Computer Science (College of Arts & Science)</option>
+              <option value="B.Com Finance (College of Arts & Science)">B.Com Finance (College of Arts & Science)</option>
+              <option value="Integrated Dual Degree (Academy of Islamic Studies)">Integrated Dual Degree (Academy of Islamic Studies)</option>
+              <option value="Automobile Engg. Diploma (Polytechnic)">Automobile Engg. Diploma (Polytechnic)</option>
+              <option value="Artificial Intelligence Certificate (Center for AI)">Artificial Intelligence Certificate (Center for AI)</option>
+              <option value="Higher Secondary CBSE (Residential School)">Higher Secondary CBSE (Residential School)</option>
+              <option value="Special Education Therapy (Institute of Inclusive Ed)">Special Education Therapy (Institute of Inclusive Ed)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Previous Qualification / Score</label>
+            <input type="text" class="form-control" name="qualification" placeholder="e.g. Plus Two / Class 12 (92%)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Additional Comments / Hostel Request</label>
+            <textarea class="form-control" name="message" rows="3" placeholder="Specify if you require hostel accommodation, scholarship guidance, or transport facilities."></textarea>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+            <button type="button" class="btn" style="background:#e2e8f0; color:#334155;" onclick="closeApplyModal()">Cancel</button>
+            <button type="submit" class="btn btn-gold">Submit Application</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span id="toast-message">Action successful!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

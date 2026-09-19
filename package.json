@@ -1,0 +1,19 @@
+{
+  "name": "educational-campus-portal",
+  "version": "1.0.0",
+  "description": "Clean, modern educational campus portal inspired by Ma'din Academy structure with Host CMS studio.",
+  "main": "index.html",
+  "scripts": {
+    "deploy:vercel": "vercel --prod",
+    "deploy:firebase": "firebase deploy --only hosting"
+  },
+  "keywords": [
+    "campus-portal",
+    "education",
+    "madin-academy",
+    "host-cms",
+    "admissions"
+  ],
+  "author": "Campus Web Designer",
+  "license": "MIT"
+}

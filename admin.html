@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Host Portal & CMS Studio | Campus Management</title>
+  <meta name="description" content="Dedicated Host Management Studio to edit all sections, branding, institutions, and events for the campus portal.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- ==========================================================================
+       Host Authentication PIN Gate Overlay
+       ========================================================================== -->
+  <div class="auth-overlay" id="auth-gate">
+    <div class="auth-card">
+      <div class="auth-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <h2 class="auth-title">Host Security Check</h2>
+      <p class="auth-hint">Enter your Host Access PIN to unlock the live editor.</p>
+      
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label" style="text-align: center;">Host Access PIN</label>
+          <input type="password" id="auth-pin-input" class="form-input" style="text-align:center; font-size:1.4rem; letter-spacing:4px;" placeholder="••••••••" required autofocus>
+          <div style="font-size:0.75rem; color:#64748b; margin-top:0.4rem; text-align:center;">
+            Default PIN: <strong style="color:var(--admin-primary);">admin123</strong>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-bottom:1.5rem; font-size:0.85rem;">
+          <input type="checkbox" id="auth-remember" checked>
+          <label for="auth-remember">Remember login on this browser</label>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <button type="submit" class="btn btn-gold" style="width:100%; padding:0.75rem;">
+            Unlock Host Studio
+          </button>
+          <a href="index.html" class="btn" style="background:#f1f5f9; color:#475569; width:100%;">
+            &larr; Return to Public Website
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Admin Top Bar
+       ========================================================================== -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+      <span>Host Studio</span>
+      <span class="admin-badge">Admin Mode</span>
+    </div>
+
+    <div class="admin-actions">
+      <a href="index.html" class="btn" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; padding:0.45rem 1rem;" target="_blank">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        View Public Site
+      </a>
+      <button class="btn btn-gold" style="padding:0.45rem 1.25rem;" onclick="saveAllForms()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+        Save All Changes
+      </button>
+      <button class="btn" style="background:#fee2e2; color:#dc2626; padding:0.45rem 0.8rem;" onclick="handleLogout()" title="Lock / Logout">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Admin Layout: Sidebar + Tab Content
+       ========================================================================== -->
+  <div class="admin-layout">
+    <!-- Left Navigation Sidebar -->
+    <aside class="admin-sidebar">
+      <span class="nav-category-title">Overview</span>
+      <button class="admin-nav-item active" data-tab="tab-overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Dashboard
+      </button>
+
+      <span class="nav-category-title">Appearance & Hero</span>
+      <button class="admin-nav-item" data-tab="tab-branding">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        Branding & Colors
+      </button>
+      <button class="admin-nav-item" data-tab="tab-hero">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        Hero & Notice Bar
+      </button>
+      <button class="admin-nav-item" data-tab="tab-stats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Quick Stats Bar
+      </button>
+
+      <span class="nav-category-title">Campus Content</span>
+      <button class="admin-nav-item" data-tab="tab-leadership">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Founder / Principal
+      </button>
+      <button class="admin-nav-item" data-tab="tab-institutions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        Institutions & Depts
+        <span class="nav-counter" id="count-inst">0</span>
+      </button>
+      <button class="admin-nav-item" data-tab="tab-campus-life">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        Campus Life
+        <span class="nav-counter" id="count-life">0</span>
+      </button>
+      <button class="admin-nav-item" data-tab="tab-news">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"></path></svg>
+        News & Notices
+        <span class="nav-counter" id="count-news">0</span>
+      </button>
+      <button class="admin-nav-item" data-tab="tab-events">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+        Events Calendar
+        <span class="nav-counter" id="count-events">0</span>
+      </button>
+
+      <span class="nav-category-title">Management</span>
+      <button class="admin-nav-item" data-tab="tab-submissions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        Admissions Inbox
+        <span class="nav-counter" id="count-submissions" style="background:var(--admin-gold); color:#000;">0</span>
+      </button>
+      <button class="admin-nav-item" data-tab="tab-contact">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        Contact & Footer
+      </button>
+      <button class="admin-nav-item" data-tab="tab-settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Backup & Security
+      </button>
+    </aside>
+
+    <!-- Right Content Area -->
+    <main class="admin-content">
+      
+      <!-- ==========================================================================
+           TAB: Overview / Dashboard
+           ========================================================================== -->
+      <section class="tab-pane active" id="tab-overview">
+        <div class="pane-header">
+          <div>
+            <h1 class="pane-title">Campus Host Control Center</h1>
+            <p class="pane-desc">Manage, customize, and edit every element of your educational campus portal in real time.</p>
+          </div>
+          <a href="index.html" class="btn btn-gold" target="_blank">Open Public Site &rarr;</a>
+        </div>
+
+        <div class="metrics-row">
+          <div class="metric-card">
+            <div class="metric-card-label">Active Institutions</div>
+            <div class="metric-card-val" id="metric-inst-count">0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Admissions Applications</div>
+            <div class="metric-card-val" id="metric-sub-count">0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">News Bulletins</div>
+            <div class="metric-card-val" id="metric-news-count">0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Scheduled Events</div>
+            <div class="metric-card-val" id="metric-event-count">0</div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">Quick Actions & Shortcuts</div>
+          <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+            <button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1;" onclick="switchTab('tab-branding')">Change Campus Name & Colors</button>
+            <button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1;" onclick="switchTab('tab-hero')">Edit Hero Headline</button>
+            <button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1;" onclick="switchTab('tab-institutions')">Add New College / Dept</button>
+            <button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1;" onclick="switchTab('tab-events')">Post New Event</button>
+            <button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1;" onclick="switchTab('tab-submissions')">Review Admissions Submissions</button>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">Recent Admission Inquiries</div>
+          <div id="overview-recent-submissions" style="overflow-x:auto;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Branding & Colors
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-branding">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Brand Identity & Color Schemes</h2>
+            <p class="pane-desc">Configure campus title, tagline, accreditation, and color scheme (Ma'din Emerald vs Royal Navy).</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <form id="form-branding">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Campus Full Name *</label>
+                <input type="text" class="form-input" id="inp-brand-name" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Short Acronym / Brand</label>
+                <input type="text" class="form-input" id="inp-brand-short">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Campus Motto / Tagline *</label>
+              <input type="text" class="form-input" id="inp-brand-tagline" required>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Color Theme Scheme</label>
+                <select class="form-select" id="inp-brand-theme">
+                  <option value="emerald">Deep Emerald Green with Gold & White (Authentic Ma'din Style)</option>
+                  <option value="navy">Royal Navy Blue with Gold & White</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Gold Accent Color Code</label>
+                <input type="text" class="form-input" id="inp-brand-gold" placeholder="#d4af37">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Accreditations & Honors</label>
+              <input type="text" class="form-input" id="inp-brand-affiliations" placeholder="UGC Recognized • NAAC 'A++' Grade">
+            </div>
+
+            <button type="button" class="btn btn-gold" onclick="saveBranding()">Save Branding Settings</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Hero & Notice Bar
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-hero">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Hero Banner & Notice Ticker</h2>
+            <p class="pane-desc">Edit hero text, campus background image, call-to-actions, and top marquee notification.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <form id="form-hero">
+            <div class="form-group">
+              <label class="form-label">Top Notice Ticker (Marquee Banner)</label>
+              <input type="text" class="form-input" id="inp-hero-ticker" placeholder="📢 Admissions Open...">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Hero Badge Text</label>
+              <input type="text" class="form-input" id="inp-hero-badge" placeholder="27+ Years of Academic Eminence">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Hero Main Headline *</label>
+              <textarea class="form-textarea" id="inp-hero-headline" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Hero Subtitle Description</label>
+              <textarea class="form-textarea" id="inp-hero-subtext"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Campus Background Image URL</label>
+              <input type="url" class="form-input" id="inp-hero-image" placeholder="https://images.unsplash.com/...">
+            </div>
+
+            <button type="button" class="btn btn-gold" onclick="saveHero()">Save Hero Banner Settings</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Quick Stats
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-stats">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Quick Stats Metrics</h2>
+            <p class="pane-desc">Edit the 4 key statistical figures displayed below the hero banner.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div id="stats-editor-rows">
+            <!-- Dynamically loaded 4 stat rows -->
+          </div>
+          <button type="button" class="btn btn-gold" style="margin-top:1rem;" onclick="saveStats()">Save Stats</button>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Founder / Principal Message
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-leadership">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Leadership & Founder Message</h2>
+            <p class="pane-desc">Update the Chairman / Principal's portrait, inspirational statement, and credentials.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <form id="form-leadership">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Leader / Principal Full Name *</label>
+                <input type="text" class="form-input" id="inp-leader-name" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Official Title / Role *</label>
+                <input type="text" class="form-input" id="inp-leader-title" placeholder="Founder & Chairman" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Honorary Designation / Subtitle</label>
+              <input type="text" class="form-input" id="inp-leader-subtitle">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Leader Portrait Photo URL</label>
+              <input type="url" class="form-input" id="inp-leader-photo">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Inspirational Message / Welcome Quote *</label>
+              <textarea class="form-textarea" style="min-height:120px;" id="inp-leader-message" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Signature Display Text</label>
+              <input type="text" class="form-input" id="inp-leader-sig">
+            </div>
+
+            <button type="button" class="btn btn-gold" onclick="saveLeadership()">Save Leadership Profile</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Institutions & Departments Grid (CRUD)
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-institutions">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Institutions & Departments</h2>
+            <p class="pane-desc">Add, edit, or remove colleges, technical schools, and academic wings.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openInstitutionModal()">+ Add New Institution</button>
+        </div>
+
+        <div class="admin-card">
+          <div style="overflow-x:auto;">
+            <table class="item-table">
+              <thead>
+                <tr>
+                  <th>Institution Name</th>
+                  <th>Category</th>
+                  <th>Established</th>
+                  <th>Degrees Offered</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-inst-body">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Campus Life Features (CRUD)
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-campus-life">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Campus Life & World-Class Facilities</h2>
+            <p class="pane-desc">Manage the campus life amenities (Hostels, Libraries, Labs, Sports).</p>
+          </div>
+          <button class="btn btn-primary" onclick="openCampusLifeModal()">+ Add Facility</button>
+        </div>
+
+        <div class="admin-card">
+          <div style="overflow-x:auto;">
+            <table class="item-table">
+              <thead>
+                <tr>
+                  <th>Facility / Feature Title</th>
+                  <th>Description</th>
+                  <th>Icon</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-life-body">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: News & Announcements (CRUD)
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-news">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">News Bulletins & Circulars</h2>
+            <p class="pane-desc">Publish recent announcements, circulars, and campus achievements.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openNewsModal()">+ Post News Item</button>
+        </div>
+
+        <div class="admin-card">
+          <div style="overflow-x:auto;">
+            <table class="item-table">
+              <thead>
+                <tr>
+                  <th>News Title</th>
+                  <th>Category</th>
+                  <th>Date</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-news-body">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Upcoming Events Calendar (CRUD)
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-events">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Upcoming Events Calendar</h2>
+            <p class="pane-desc">Schedule upcoming seminars, summits, convocation ceremonies, and sports meets.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openEventModal()">+ Schedule New Event</button>
+        </div>
+
+        <div class="admin-card">
+          <div style="overflow-x:auto;">
+            <table class="item-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Event Title</th>
+                  <th>Timing & Venue</th>
+                  <th>Category</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-events-body">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Admissions Submissions Inbox
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-submissions">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Admissions & Inquiries Inbox</h2>
+            <p class="pane-desc">View student application submissions received from the "Apply Now" modal.</p>
+          </div>
+          <button class="btn btn-gold" onclick="exportSubmissionsCSV()">Export to CSV</button>
+        </div>
+
+        <div class="admin-card">
+          <div style="overflow-x:auto;">
+            <table class="item-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Applicant Name</th>
+                  <th>Course of Interest</th>
+                  <th>Phone / Email</th>
+                  <th>Status</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="table-submissions-body">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Contact & Footer
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-contact">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Contact Information & Footer Details</h2>
+            <p class="pane-desc">Manage campus postal address, helpline numbers, emails, and social media handles.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <form id="form-contact">
+            <div class="form-group">
+              <label class="form-label">Campus Physical Address *</label>
+              <textarea class="form-textarea" id="inp-contact-address" required></textarea>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">General Contact Phone(s) *</label>
+                <input type="text" class="form-input" id="inp-contact-phone" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Admissions Helpline Email *</label>
+                <input type="email" class="form-input" id="inp-contact-email" required>
+              </div>
+            </div>
+
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">Facebook Page URL</label>
+                <input type="url" class="form-input" id="inp-social-fb">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Instagram Handle URL</label>
+                <input type="url" class="form-input" id="inp-social-insta">
+              </div>
+              <div class="form-group">
+                <label class="form-label">YouTube Channel URL</label>
+                <input type="url" class="form-input" id="inp-social-yt">
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-gold" onclick="saveContact()">Save Contact Details</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           TAB: Backup & Security Settings
+           ========================================================================== -->
+      <section class="tab-pane" id="tab-settings">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Host Security & Data Management</h2>
+            <p class="pane-desc">Change Host PIN, export JSON backups, restore configurations, or reset to original demo data.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">Host PIN Security</div>
+          <div style="max-width:350px;">
+            <div class="form-group">
+              <label class="form-label">New Host Access PIN</label>
+              <input type="password" class="form-input" id="inp-new-pin" placeholder="Enter new PIN">
+            </div>
+            <button class="btn btn-primary" onclick="updateHostPin()">Update Access PIN</button>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">Data Backup & Restore</div>
+          <p style="font-size:0.9rem; color:#64748b; margin-bottom:1.25rem;">
+            Download a full JSON snapshot of all institutions, news, events, and customizations. You can import it on any device.
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+            <button class="btn btn-gold" onclick="CampusDataService.exportJSON()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Export Complete Backup JSON
+            </button>
+            <label class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1; cursor:pointer;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Import Backup JSON
+              <input type="file" id="file-import-json" accept=".json" style="display:none;" onchange="handleImportJSON(event)">
+            </label>
+          </div>
+        </div>
+
+        <div class="admin-card" style="border-color:#fecaca; background:#fffafb;">
+          <div class="admin-card-title" style="color:#dc2626;">Reset to Factory Demo Data</div>
+          <p style="font-size:0.9rem; color:#64748b; margin-bottom:1rem;">
+            This will reset all campus data, institutions, and news back to the original Ma'din Academy inspired sample data.
+          </p>
+          <button class="btn" style="background:#dc2626; color:#fff;" onclick="handleResetFactoryData()">
+            Reset All to Ma'din Inspired Defaults
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: Add / Edit Institution
+       ========================================================================== -->
+  <div class="admin-modal-backdrop" id="modal-inst">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 id="modal-inst-title" style="font-size:1.2rem; font-weight:700;">Add Institution / Department</h3>
+        <button class="modal-close-btn" onclick="closeInstitutionModal()">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="form-inst-modal" onsubmit="handleSaveInstitution(event)">
+          <input type="hidden" id="inst-edit-id">
+          
+          <div class="form-group">
+            <label class="form-label">Institution / Department Name *</label>
+            <input type="text" class="form-input" id="modal-inst-name" placeholder="e.g. School of Biological Sciences" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Category Filter</label>
+              <select class="form-select" id="modal-inst-cat">
+                <option value="higher-ed">Higher Education</option>
+                <option value="islamic-studies">Islamic & Contemporary</option>
+                <option value="technical">Engineering & Tech</option>
+                <option value="schools">Residential Schooling</option>
+                <option value="special-ed">Special & Inclusive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category Display Label</label>
+              <input type="text" class="form-input" id="modal-inst-catlabel" placeholder="e.g. Higher Education">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description *</label>
+            <textarea class="form-textarea" id="modal-inst-desc" placeholder="Brief summary of programs, labs, and research focus..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Degrees Offered (comma separated)</label>
+            <input type="text" class="form-input" id="modal-inst-degrees" placeholder="B.Sc Biotech, M.Sc Microbiology, Ph.D">
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Year Established</label>
+              <input type="text" class="form-input" id="modal-inst-year" placeholder="2005">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Image URL</label>
+              <input type="url" class="form-input" id="modal-inst-img" placeholder="https://images.unsplash.com/...">
+            </div>
+          </div>
+
+          <div class="admin-modal-footer">
+            <button type="button" class="btn" style="background:#e2e8f0; color:#334155;" onclick="closeInstitutionModal()">Cancel</button>
+            <button type="submit" class="btn btn-gold">Save Institution</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: Add / Edit News
+       ========================================================================== -->
+  <div class="admin-modal-backdrop" id="modal-news">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 id="modal-news-title" style="font-size:1.2rem; font-weight:700;">Publish News Circular</h3>
+        <button class="modal-close-btn" onclick="closeNewsModal()">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="form-news-modal" onsubmit="handleSaveNews(event)">
+          <input type="hidden" id="news-edit-id">
+          
+          <div class="form-group">
+            <label class="form-label">Headline / Title *</label>
+            <input type="text" class="form-input" id="modal-news-headline" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Category Badge</label>
+              <input type="text" class="form-input" id="modal-news-cat" placeholder="Admissions / Research / Campus">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date String</label>
+              <input type="text" class="form-input" id="modal-news-date" placeholder="October 15, 2026">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Summary / Excerpt *</label>
+            <textarea class="form-textarea" id="modal-news-summary" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Thumbnail Image URL</label>
+            <input type="url" class="form-input" id="modal-news-img">
+          </div>
+
+          <div class="admin-modal-footer">
+            <button type="button" class="btn" style="background:#e2e8f0; color:#334155;" onclick="closeNewsModal()">Cancel</button>
+            <button type="submit" class="btn btn-gold">Save News</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: Add / Edit Event
+       ========================================================================== -->
+  <div class="admin-modal-backdrop" id="modal-event">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 id="modal-event-title" style="font-size:1.2rem; font-weight:700;">Schedule Campus Event</h3>
+        <button class="modal-close-btn" onclick="closeEventModal()">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="form-event-modal" onsubmit="handleSaveEvent(event)">
+          <input type="hidden" id="event-edit-id">
+          
+          <div class="form-group">
+            <label class="form-label">Event Title *</label>
+            <input type="text" class="form-input" id="modal-event-name" required>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label class="form-label">Day (e.g. 24)</label>
+              <input type="text" class="form-input" id="modal-event-day" placeholder="24" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Month (e.g. OCT)</label>
+              <input type="text" class="form-input" id="modal-event-month" placeholder="OCT" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <input type="text" class="form-input" id="modal-event-cat" placeholder="Symposium">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Timing String</label>
+              <input type="text" class="form-input" id="modal-event-time" placeholder="10:00 AM - 04:00 PM">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Venue Location</label>
+              <input type="text" class="form-input" id="modal-event-venue" placeholder="Main Auditorium">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Brief Description</label>
+            <textarea class="form-textarea" id="modal-event-desc"></textarea>
+          </div>
+
+          <div class="admin-modal-footer">
+            <button type="button" class="btn" style="background:#e2e8f0; color:#334155;" onclick="closeEventModal()">Cancel</button>
+            <button type="submit" class="btn btn-gold">Save Event</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span id="toast-message">Saved successfully!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
