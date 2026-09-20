@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCampusPortal();
 });
 
-// Re-render when data changes in localStorage
+// Re-render when data changes in localStorage or after cloud sync
 window.addEventListener('campusDataUpdated', () => {
   renderAllCampusContent();
 });
@@ -19,9 +19,49 @@ window.addEventListener('storage', (e) => {
   }
 });
 
-function initCampusPortal() {
+// Listen for cloud sync status changes
+window.addEventListener('cloudSyncStatus', (e) => {
+  updateCloudBadge(e.detail);
+});
+
+// Automatically check cloud when tab comes into focus
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    CampusDataService.syncFromCloud();
+  }
+});
+
+async function initCampusPortal() {
+  // 1. Check if opened with a shareable URL snapshot
+  CampusDataService.checkUrlHashData();
+
+  // 2. Render initial data immediately (0ms delay)
   renderAllCampusContent();
   setupEventListeners();
+
+  // 3. Load baseline data.json if available from web server
+  await CampusDataService.loadFromDataJson();
+  renderAllCampusContent();
+
+  // 4. Check live cloud sync across all devices
+  CampusDataService.syncFromCloud();
+}
+
+function updateCloudBadge(detail) {
+  const badge = document.getElementById('cloud-status-badge');
+  const text = document.getElementById('cloud-status-text');
+  if (!badge || !text) return;
+
+  if (detail.status === 'syncing') {
+    badge.className = 'cloud-status-badge syncing';
+    text.textContent = 'Syncing...';
+  } else if (detail.status === 'synced') {
+    badge.className = 'cloud-status-badge synced';
+    text.textContent = 'Cloud Connected';
+  } else if (detail.status === 'offline') {
+    badge.className = 'cloud-status-badge offline';
+    text.textContent = 'Local Cache';
+  }
 }
 
 function renderAllCampusContent() {

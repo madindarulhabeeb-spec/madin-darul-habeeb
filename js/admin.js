@@ -11,6 +11,27 @@ function initAdminPortal() {
   checkAuthentication();
   setupTabNavigation();
   loadAllAdminData();
+
+  window.addEventListener('cloudSyncStatus', (e) => {
+    const label = document.getElementById('admin-cloud-status-label');
+    const dot = document.getElementById('admin-cloud-dot');
+    const lastSync = document.getElementById('admin-cloud-last-sync');
+
+    if (e.detail.status === 'syncing') {
+      if (label) label.textContent = 'Syncing with Global Cloud...';
+      if (dot) dot.style.background = '#d4af37';
+    } else if (e.detail.status === 'synced') {
+      if (label) label.textContent = 'Live Cloud Active (Synced)';
+      if (dot) dot.style.background = '#10b981';
+      if (lastSync) lastSync.textContent = `Last Synced: ${new Date().toLocaleTimeString()}`;
+    } else if (e.detail.status === 'offline') {
+      if (label) label.textContent = 'Local Mode (Cloud offline/not set)';
+      if (dot) dot.style.background = '#94a3b8';
+    } else if (e.detail.status === 'error') {
+      if (label) label.textContent = 'Sync Error';
+      if (dot) dot.style.background = '#ef4444';
+    }
+  });
 }
 
 // --------------------------------------------------------------------------
@@ -138,6 +159,18 @@ function loadAllAdminData() {
     document.getElementById('inp-social-yt').value = data.contact.social.youtube || '';
   }
 
+  // Cloud Sync Form
+  if (data.cloudConfig) {
+    const cloudUrlInp = document.getElementById('inp-cloud-url');
+    if (cloudUrlInp) cloudUrlInp.value = data.cloudConfig.databaseUrl || '';
+    const cloudEnableInp = document.getElementById('inp-cloud-enable');
+    if (cloudEnableInp) cloudEnableInp.checked = data.cloudConfig.enabled !== false;
+    const lastSyncLabel = document.getElementById('admin-cloud-last-sync');
+    if (lastSyncLabel && data.cloudConfig.lastSynced) {
+      lastSyncLabel.textContent = `Last Synced: ${new Date(data.cloudConfig.lastSynced).toLocaleTimeString()}`;
+    }
+  }
+
   // Lists & Tables
   renderInstitutionsTable(data.institutions || []);
   renderCampusLifeTable(data.campusLife || []);
@@ -251,13 +284,86 @@ function saveContact() {
   showAdminToast("Contact details & footer links updated!");
 }
 
-function saveAllForms() {
+async function saveAllForms() {
   saveBranding();
   saveHero();
   saveStats();
   saveLeadership();
   saveContact();
-  showAdminToast("All sections saved and synchronized with public portal!");
+  
+  // Broadcast to Cloud across all devices
+  showAdminToast("Broadcasting updates to Global Cloud...");
+  const res = await CampusDataService.pushToCloud();
+  if (res && res.success) {
+    showAdminToast("✅ All sections saved & synced to all devices worldwide!");
+  } else {
+    showAdminToast("Saved locally. (Check Cloud settings to sync across devices)");
+  }
+}
+
+// --------------------------------------------------------------------------
+// Cloud Sync Studio Handlers
+// --------------------------------------------------------------------------
+async function handleSaveCloudConfig(event) {
+  event.preventDefault();
+  const url = document.getElementById('inp-cloud-url').value.trim();
+  const enabled = document.getElementById('inp-cloud-enable').checked;
+
+  const data = CampusDataService.getData();
+  data.cloudConfig = data.cloudConfig || {};
+  data.cloudConfig.databaseUrl = url;
+  data.cloudConfig.enabled = enabled;
+  data.cloudConfig.lastSynced = new Date().toISOString();
+
+  CampusDataService.saveDataLocal(data);
+  showAdminToast("Firebase Database URL configured successfully!");
+
+  // Immediately test and push baseline
+  testCloudSyncConnection();
+}
+
+async function testCloudSyncConnection() {
+  const url = document.getElementById('inp-cloud-url').value.trim();
+  showAdminToast("Pinging Cloud Database...");
+  
+  const label = document.getElementById('admin-cloud-status-label');
+  const dot = document.getElementById('admin-cloud-dot');
+  if (label) label.textContent = "Testing Connection...";
+  if (dot) dot.style.background = "#d4af37";
+
+  const result = await CampusDataService.testCloudConnection(url);
+  if (result.success) {
+    if (label) label.textContent = "Connected & Active (Worldwide Live)";
+    if (dot) dot.style.background = "#10b981";
+    showAdminToast("✅ " + result.message);
+  } else {
+    if (label) label.textContent = "Offline / Connection Error";
+    if (dot) dot.style.background = "#ef4444";
+    alert("Cloud Connection Notice:\n" + result.message);
+  }
+}
+
+async function pushAllToCloud() {
+  showAdminToast("Uploading current data snapshot to Cloud...");
+  const res = await CampusDataService.pushToCloud();
+  if (res.success) {
+    showAdminToast("✅ All campus data uploaded to Cloud! Available on all devices now.");
+    const lastSync = document.getElementById('admin-cloud-last-sync');
+    if (lastSync) lastSync.textContent = `Last Synced: ${new Date().toLocaleTimeString()}`;
+  } else {
+    alert("Failed to push to Cloud: " + (res.error || res.reason));
+  }
+}
+
+async function pullFromCloud() {
+  showAdminToast("Fetching latest data from Cloud...");
+  const res = await CampusDataService.syncFromCloud();
+  if (res.success) {
+    loadAllAdminData();
+    showAdminToast("✅ Successfully pulled freshest data from Cloud!");
+  } else {
+    alert("Could not fetch from Cloud: " + (res.error || res.reason));
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -754,6 +860,15 @@ function handleResetFactoryData() {
     loadAllAdminData();
     showAdminToast("Reset to factory defaults completed!");
   }
+}
+
+function copyShareableLiveUrl() {
+  const url = CampusDataService.generateShareUrl();
+  navigator.clipboard.writeText(url).then(() => {
+    showAdminToast("📋 Live Share Link copied to clipboard! Open it on any device to view.");
+  }).catch(() => {
+    prompt("Copy this Live Snapshot link to open on any device:", url);
+  });
 }
 
 // --------------------------------------------------------------------------

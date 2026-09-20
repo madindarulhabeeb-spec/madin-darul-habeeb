@@ -1,11 +1,13 @@
 /**
- * Campus Portal - Central Data Store & Persistence Layer
- * Default data inspired by Ma'din Academy (madin.edu.in)
- * Supports dynamic editing and localStorage persistence
+ * Campus Portal - Central Data Store & Universal Cloud Persistence Layer
+ * Inspired by Ma'din Academy (madin.edu.in)
+ * Supports real-time multi-device cloud synchronization via Firebase Realtime Database & local caching
  */
 
 const STORAGE_KEY = 'campus_portal_cms_data';
+const CLOUD_CONFIG_KEY = 'campus_portal_cloud_config';
 
+// Default Demo Campus Data
 const DEFAULT_CAMPUS_DATA = {
   branding: {
     campusName: "Al-Madinah Academic Complex",
@@ -16,6 +18,13 @@ const DEFAULT_CAMPUS_DATA = {
     noticeTicker: "📢 Admissions Open for Academic Year 2026-27 | Merit Scholarship Exam on Oct 12 | National Symposium on Ethical AI & Education Registration Live",
     foundedYear: "1997",
     affiliations: "UGC Recognized • NAAC 'A++' Grade • AICTE Approved"
+  },
+  cloudConfig: {
+    enabled: true,
+    provider: "firebase",
+    // User's Firebase Realtime Database URL
+    databaseUrl: "https://madin-darul-habeeb-default-rtdb.firebaseio.com",
+    lastSynced: null
   },
   contact: {
     address: "Knowledge City, Swagathamad, Malappuram, Kerala - 676519",
@@ -260,22 +269,26 @@ const DEFAULT_CAMPUS_DATA = {
   ]
 };
 
-// Data Service APIs
+// ==========================================================================
+// Central Data & Universal Cloud Persistence Service
+// ==========================================================================
 const CampusDataService = {
-  // Load data from localStorage or initialize with defaults
+  _cloudSyncInProgress: false,
+
+  // Get current data from local cache
   getData() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) {
-        this.saveData(DEFAULT_CAMPUS_DATA);
+        this.saveDataLocal(DEFAULT_CAMPUS_DATA);
         return JSON.parse(JSON.stringify(DEFAULT_CAMPUS_DATA));
       }
       const parsed = JSON.parse(stored);
-      // Merge with default schema in case new fields were added
       return {
         ...DEFAULT_CAMPUS_DATA,
         ...parsed,
         branding: { ...DEFAULT_CAMPUS_DATA.branding, ...(parsed.branding || {}) },
+        cloudConfig: { ...DEFAULT_CAMPUS_DATA.cloudConfig, ...(parsed.cloudConfig || {}) },
         contact: { ...DEFAULT_CAMPUS_DATA.contact, ...(parsed.contact || {}) },
         hero: { ...DEFAULT_CAMPUS_DATA.hero, ...(parsed.hero || {}) },
         leadership: { ...DEFAULT_CAMPUS_DATA.leadership, ...(parsed.leadership || {}) },
@@ -288,34 +301,160 @@ const CampusDataService = {
     }
   },
 
-  // Save full data object
-  saveData(data) {
+  // Save data to local cache only
+  saveDataLocal(data) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       window.dispatchEvent(new CustomEvent('campusDataUpdated', { detail: data }));
       return true;
     } catch (e) {
-      console.error("Error saving campus data:", e);
+      console.error("Error saving local campus data:", e);
       return false;
     }
   },
 
-  // Partial update helper
-  updateSection(sectionKey, sectionData) {
-    const current = this.getData();
-    current[sectionKey] = sectionData;
-    return this.saveData(current);
+  // Universal Save: Saves locally AND syncs to Cloud across all devices
+  async saveData(data) {
+    // 1. Save locally for instantaneous response
+    this.saveDataLocal(data);
+
+    // 2. Broadcast to Cloud Database asynchronously
+    if (data.cloudConfig && data.cloudConfig.enabled && data.cloudConfig.databaseUrl) {
+      return await this.pushToCloud(data);
+    }
+    return { success: true, cloud: false };
   },
 
-  // Restore factory demo data
-  resetToDefaults() {
-    localStorage.removeItem(STORAGE_KEY);
-    this.saveData(DEFAULT_CAMPUS_DATA);
-    return JSON.parse(JSON.stringify(DEFAULT_CAMPUS_DATA));
+  // Get formatted Firebase REST URL
+  getCloudEndpoint(data = null) {
+    const current = data || this.getData();
+    let url = (current.cloudConfig && current.cloudConfig.databaseUrl) ? current.cloudConfig.databaseUrl.trim() : "";
+    if (!url) return null;
+    
+    // Clean trailing slashes
+    url = url.replace(/\/+$/, "");
+    if (!url.endsWith(".json")) {
+      url += "/campusData.json";
+    }
+    return url;
   },
 
-  // Add a student application submission
-  addSubmission(application) {
+  // Pull latest data from Cloud Database (Runs when any visitor opens site on any device)
+  async syncFromCloud() {
+    if (this._cloudSyncInProgress) return;
+    const endpoint = this.getCloudEndpoint();
+    if (!endpoint) return { success: false, reason: "No cloud endpoint configured" };
+
+    this._cloudSyncInProgress = true;
+    window.dispatchEvent(new CustomEvent('cloudSyncStatus', { detail: { status: 'syncing' } }));
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Cloud returned HTTP ${response.status}`);
+      }
+
+      const cloudData = await response.json();
+      if (cloudData && cloudData.branding) {
+        // Merge cloud data into local cache
+        const local = this.getData();
+        const merged = {
+          ...local,
+          ...cloudData,
+          cloudConfig: {
+            ...local.cloudConfig,
+            ...(cloudData.cloudConfig || {}),
+            lastSynced: new Date().toISOString()
+          }
+        };
+
+        this.saveDataLocal(merged);
+        window.dispatchEvent(new CustomEvent('cloudSyncStatus', { detail: { status: 'synced', timestamp: new Date() } }));
+        this._cloudSyncInProgress = false;
+        return { success: true, data: merged };
+      } else {
+        // Cloud exists but is empty; push our local baseline up
+        window.dispatchEvent(new CustomEvent('cloudSyncStatus', { detail: { status: 'empty' } }));
+        this._cloudSyncInProgress = false;
+        return { success: true, empty: true };
+      }
+    } catch (err) {
+      console.warn("Cloud sync unavailable or offline, using local cache:", err.message);
+      window.dispatchEvent(new CustomEvent('cloudSyncStatus', { detail: { status: 'offline', error: err.message } }));
+      this._cloudSyncInProgress = false;
+      return { success: false, error: err.message };
+    }
+  },
+
+  // Push full data to Cloud Database
+  async pushToCloud(dataToPush = null) {
+    const data = dataToPush || this.getData();
+    const endpoint = this.getCloudEndpoint(data);
+    if (!endpoint) return { success: false, reason: "No cloud endpoint set" };
+
+    window.dispatchEvent(new CustomEvent('cloudSyncStatus', { detail: { status: 'syncing' } }));
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Cloud write failed with HTTP ${response.status}`);
+      }
+
+      data.cloudConfig = data.cloudConfig || {};
+      data.cloudConfig.lastSynced = new Date().toISOString();
+      this.saveDataLocal(data);
+
+      window.dispatchEvent(new CustomEvent('cloudSyncStatus', { detail: { status: 'synced', timestamp: new Date() } }));
+      return { success: true };
+    } catch (err) {
+      console.error("Failed to push to Cloud Database:", err);
+      window.dispatchEvent(new CustomEvent('cloudSyncStatus', { detail: { status: 'error', error: err.message } }));
+      return { success: false, error: err.message };
+    }
+  },
+
+  // Test Cloud connection
+  async testCloudConnection(customUrl = null) {
+    const data = this.getData();
+    let url = customUrl ? customUrl.trim() : (data.cloudConfig ? data.cloudConfig.databaseUrl : "");
+    if (!url) return { success: false, message: "Please enter a valid Firebase Realtime Database URL." };
+
+    url = url.replace(/\/+$/, "");
+    if (!url.endsWith(".json")) {
+      url += "/_ping.json";
+    }
+
+    try {
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ping: true, timestamp: Date.now() })
+      });
+
+      if (res.ok) {
+        return { success: true, message: "Connected! All devices worldwide can now read and write changes in real time." };
+      } else {
+        return { success: false, message: `Cloud rejected connection with status ${res.status}. Check Firebase Database Rules.` };
+      }
+    } catch (e) {
+      return { success: false, message: `Could not reach database: ${e.message}. Ensure CORS or URL format is correct.` };
+    }
+  },
+
+  // Add application submission (saves locally and to cloud)
+  async addSubmission(application) {
     const current = this.getData();
     const newSubmission = {
       id: "sub-" + Date.now(),
@@ -324,8 +463,31 @@ const CampusDataService = {
       ...application
     };
     current.submissions = [newSubmission, ...(current.submissions || [])];
-    this.saveData(current);
+    
+    // Save locally
+    this.saveDataLocal(current);
+
+    // Push submissions to Cloud REST endpoint so host on another computer sees it!
+    const endpoint = this.getCloudEndpoint(current);
+    if (endpoint) {
+      const subEndpoint = endpoint.replace("campusData.json", "campusData/submissions.json");
+      try {
+        fetch(subEndpoint, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(current.submissions)
+        }).catch(err => console.warn("Cloud submission background sync:", err));
+      } catch (e) {}
+    }
+
     return newSubmission;
+  },
+
+  // Factory demo reset
+  resetToDefaults() {
+    localStorage.removeItem(STORAGE_KEY);
+    this.saveDataLocal(DEFAULT_CAMPUS_DATA);
+    return JSON.parse(JSON.stringify(DEFAULT_CAMPUS_DATA));
   },
 
   // Export JSON file download
@@ -354,13 +516,76 @@ const CampusDataService = {
     }
   },
 
-  // Simple PIN verification
+  // PIN Verification
   verifyPin(inputPin) {
     const data = this.getData();
     return (data.adminAuth && data.adminAuth.pin === inputPin) || inputPin === "admin123";
   },
 
-  // Check if Host session is active
+  // Check URL hash for shared configuration snapshot
+  checkUrlHashData() {
+    try {
+      if (window.location.hash && window.location.hash.includes('portal_data=')) {
+        const match = window.location.hash.match(/portal_data=([^&]+)/);
+        if (match && match[1]) {
+          const jsonStr = decodeURIComponent(escape(atob(match[1])));
+          const parsed = JSON.parse(jsonStr);
+          if (parsed && parsed.branding) {
+            this.saveDataLocal(parsed);
+            history.replaceState(null, null, window.location.pathname + window.location.search);
+            return parsed;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Could not unpack portal_data from URL hash:", e);
+    }
+    return null;
+  },
+
+  // Load baseline from data.json file if hosted on web server
+  async loadFromDataJson() {
+    try {
+      if (window.location.protocol.startsWith('http')) {
+        const res = await fetch('./data.json?v=' + Date.now());
+        if (res.ok) {
+          const fileData = await res.json();
+          if (fileData && fileData.branding) {
+            const hasLocalEdits = localStorage.getItem(STORAGE_KEY);
+            if (!hasLocalEdits) {
+              this.saveDataLocal(fileData);
+              return fileData;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("data.json not loaded:", e);
+    }
+    return null;
+  },
+
+  // Download exact data.json to replace in project root / GitHub / Vercel
+  downloadDataJson() {
+    const data = this.getData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "data.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  // Generate 1-click shareable URL that loads exact state on any phone or device
+  generateShareUrl() {
+    const data = this.getData();
+    const jsonStr = JSON.stringify(data);
+    const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+    const base = window.location.href.split('#')[0].replace('admin.html', 'index.html');
+    return `${base}#portal_data=${encoded}`;
+  },
+
   isHostAuthenticated() {
     return sessionStorage.getItem('campus_host_auth') === 'true' || 
            localStorage.getItem('campus_host_auth_persistent') === 'true';
@@ -379,5 +604,4 @@ const CampusDataService = {
   }
 };
 
-// Expose globally
 window.CampusDataService = CampusDataService;
